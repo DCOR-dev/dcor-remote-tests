@@ -1,0 +1,21 @@
+notifications:
+  email: false
+os: linux
+language: python
+python: 3.8
+env:
+ global:
+  # DCOR_API_KEY
+  - secure: "xfBFDhiPw/p26PWTy3W0apmK5kyRXa3FghMduNlKX8YD8MJtvdhJ7XCRF3PUNQTUGG8zggubKbVWuWu/mQoZiCFhj9kkqVAEbCiOJM70+hWNQwW3Oc1SwEetD135Ab3JjHh5ZTaodogXeEUkJ3ed8SrGvz+R4smqAO84Mb/cjxI2fyfQqcaryo9n5fkuekRy+jGHEgD01GksbIEsGLnbPkZlUY5hd2YMAfdh6TF/eMREkZ/w6yYdiMyK4WkaKxL4EgxlfAnczVNY5n7iRJlpA8a686ATYn09BFqLayxS+Zvbw4poUaLWoix5kMgMXaAVNb1Emm7Yx1ONWgxi6IAj0wrFOsCru6L1RQ5kjKJO4mWqC6tHPusLOuTjhoEDwcMdV29cVWx+TaguCfWGor7KhWcRAhNciQAB5FEd0HeNFW5Vk6uvcpfUy3v2jds8i05McnLX61+iwphWboGCH8niYB6iho6cGSIOwD+bBO1+2uRA8NhfKOlUlvVX1RB/fBCwb5wf6dAFzrKRs2hNT7hfcE/gxbcr5ifE/eHwHrsbsojI8LrztYJRD2hMR0ZNm/J3UbB6UlAb0s0iKksrynA/08JseOLwB/+OijLdrPIFGnwI4RZ6AX/pLL6L4qWka6jbh0ukQy9I25TboVqqF5cYdHyCZ7nT6dpHF5FTplV7PAM="
+
+install:
+# install dependencies
+- travis_retry pip install --upgrade pip
+- travis_retry pip install setuptools wheel
+- travis_retry pip install dcoraid
+- travis_retry pip install pytest
+- pip freeze
+script:
+- flake8 tests
+- py.test tests
+
