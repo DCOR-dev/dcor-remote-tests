@@ -22,6 +22,6 @@ Note that datasets, collections, and circles created during testing are
 only purged for registered testing users (e.g. "remote_tester").
 
 
-.. |Tests Status| image:: https://img.shields.io/travis/DCOR-dev/DCOR-remote-tests.svg?label=tests
-   :target: https://travis-ci.com/DCOR-dev/DCOR-remote-tests
+.. |Tests Status| image:: https://img.shields.io/github/workflow/status/DCOR-Aid/dcor-remote-tests/Checks
+   :target: https://github.com/DCOR-dev/dcor-remote-tests/actions?query=workflow%3AChecks
 
