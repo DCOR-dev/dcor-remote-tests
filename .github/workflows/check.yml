@@ -4,7 +4,7 @@ on:
   push:
   pull_request:
   schedule:
-  - cron: "0 0 1 * *"
+  - cron: "0 1 * * *"
 
 jobs:
   build:
@@ -27,7 +27,7 @@ jobs:
         pip freeze
     - name: Test with pytest
       env:
-        DCOR_API_KEY: ${{ secrets.DCOR_API_KEY}}
+        DCOR_API_KEY: ${{ secrets.DCOR_API_KEY }}
       run: |
          py.test tests
     - name: Lint with flake8
