@@ -37,7 +37,7 @@ def test_create_dataset_fail_activate_without_resource():
     # create some metadata
     dataset_dict = make_dataset_dict()
     # post dataset creation request
-    with pytest.raises(ValueError):
+    with pytest.raises((ValueError, AssertionError)):
         upload.create_dataset(dataset_dict=dataset_dict,
                               server=SERVER,
                               api_key=get_api_key(),
