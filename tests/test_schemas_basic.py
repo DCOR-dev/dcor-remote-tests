@@ -2,6 +2,7 @@ import pathlib
 
 import pytest
 
+import dcoraid
 from dcoraid.dbmodel.model_api import CKANAPI
 from dcoraid import upload
 
@@ -61,6 +62,31 @@ def test_create_dataset_with_resource():
                         )
 
     upload.activate_dataset(dataset_id=data["id"],
+                            server=SERVER,
+                            api_key=get_api_key())
+
+
+def test_delete_dataset_forbidden():
+    # create some metadata
+    dataset_dict = make_dataset_dict()
+    # post dataset creation request
+    data = upload.create_dataset(dataset_dict=dataset_dict,
+                                 server=SERVER,
+                                 api_key=get_api_key(),
+                                 create_circle=True)
+
+    upload.add_resource(dataset_id=data["id"],
+                        path=data_path / "calibration_beads_47.rtdc",
+                        server=SERVER,
+                        api_key=get_api_key(),
+                        )
+
+    upload.activate_dataset(dataset_id=data["id"],
+                            server=SERVER,
+                            api_key=get_api_key())
+
+    with pytest.raises(dcoraid.api.APIAuthorizationError):
+        upload.remove_draft(dataset_id=data["id"],
                             server=SERVER,
                             api_key=get_api_key())
 
