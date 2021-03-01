@@ -5,7 +5,7 @@ import pytest
 import dcoraid
 from dcoraid import upload
 
-from helper import SERVER, get_api, make_dataset_dict
+from helper import get_api, make_dataset_dict
 
 data_path = pathlib.Path(__file__).parent / "data"
 
