@@ -1,2 +1,2 @@
-dcoraid
+dcoraid>0.3.0
 pytest

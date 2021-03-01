@@ -3,7 +3,15 @@ import os
 import pathlib
 import time
 
+from dcoraid.api import CKANAPI
+
+
 SERVER = "dcor-dev.mpl.mpg.de"
+
+
+def get_api():
+    api = CKANAPI(server=SERVER, api_key=get_api_key(), ssl_verify=True)
+    return api
 
 
 def get_api_key():
