@@ -48,13 +48,15 @@ def test_create_dataset_public():
                         )
     data2 = api.get("package_show", id=data["id"])
     assert not data2["private"]
+    upload.activate_dataset(dataset_id=data["id"],
+                            api=get_api())
 
 
 def test_create_dataset_fail_activate_without_resource():
     # create some metadata
     dataset_dict = make_dataset_dict()
     # post dataset creation request
-    with pytest.raises((ValueError, AssertionError)):
+    with pytest.raises(dcoraid.api.APIConflictError):
         upload.create_dataset(dataset_dict=dataset_dict,
                               api=get_api(),
                               create_circle=True,
