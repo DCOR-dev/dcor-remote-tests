@@ -32,6 +32,24 @@ def test_create_dataset():
     assert data2["state"] == "draft"
 
 
+def test_create_dataset_public():
+    """All logged-in users should be able to create circles and datasets"""
+    # create some metadata
+    dataset_dict = make_dataset_dict()
+    dataset_dict["private"] = False
+    # post dataset creation request
+    api = get_api()
+    data = upload.create_dataset(dataset_dict=dataset_dict,
+                                 api=api,
+                                 create_circle=True)
+    upload.add_resource(dataset_id=data["id"],
+                        path=data_path / "calibration_beads_47.rtdc",
+                        api=get_api(),
+                        )
+    data2 = api.get("package_show", id=data["id"])
+    assert not data2["private"]
+
+
 def test_create_dataset_fail_activate_without_resource():
     # create some metadata
     dataset_dict = make_dataset_dict()
