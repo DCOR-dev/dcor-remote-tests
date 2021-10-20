@@ -237,6 +237,40 @@ def test_package_revise_delete_not_allowed_active_dataset():
     assert len(pkg_data["resources"]) == 2
 
 
+def test_package_revise_upload_not_allowed_same_resource_name():
+    # create some metadata
+    api = get_api()
+    dataset_dict = make_dataset_dict()
+    data = dataset.dataset_create(dataset_dict=dataset_dict,
+                                  api=api,
+                                  create_circle=True)
+    dataset.resource_add(dataset_id=data["id"],
+                         path=data_path / "calibration_beads_47.rtdc",
+                         api=api,
+                         )
+
+    # now try to add a resource with package_revise
+    path = data_path / "calibration_beads_47.rtdc"
+    with path.open("rb") as fd:
+        req = requests.post(
+            api.api_url + "package_revise",
+            data={"match__id": data["id"],
+                  "update__resources__extend":
+                      '[{"name":"calibration_beads_47.rtdc"}]',
+                  },
+            files=[("update__resources__-1__upload",
+                    ("calibration_beads_47.rtdc", fd))],
+            headers=api.headers)
+    assert not req.ok
+    assert not req.json()["success"]
+    assert req.reason == "CONFLICT"
+    error = req.json()["error"]
+    assert "'calibration_beads_47.rtdc' already exists!" in \
+           error["resources"][1]["name"][0]
+    pkg_data = api.get("package_show", id=data["id"])
+    assert len(pkg_data["resources"]) == 1
+
+
 if __name__ == "__main__":
     # Run all tests
     loc = locals()
