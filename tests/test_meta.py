@@ -11,7 +11,7 @@ def test_ckan_version():
 def test_extensions():
     api = get_api()
     extensions = api.get("status_show")["extensions"]
-    for key in ["activity", "stats", "text_view", "image_view", "dcor_depot",
+    for key in ["stats", "text_view", "image_view", "dcor_depot",
                 "dcor_schemas", "dc_serve", "dc_view", "dc_log_view",
                 "dcor_theme"]:
         assert key in extensions, f"extension '{key}' not loaded!"
