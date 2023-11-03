@@ -1,2 +1,3 @@
+dclab[dcor,s3,http]>=0.55.0
 dcoraid>=0.3.0
 pytest

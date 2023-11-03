@@ -7,7 +7,7 @@ import requests
 import dcoraid
 from dcoraid.api import dataset
 
-from helper import get_api, make_dataset_dict
+from helper import CKANAPI, get_api, make_dataset_dict
 
 data_path = pathlib.Path(__file__).parent / "data"
 
@@ -35,7 +35,7 @@ def test_dataset_create():
 
 
 def test_dataset_create_public():
-    """All logged-in users should be able to create circles and datasets"""
+    """Create a public dataset"""
     # create some metadata
     dataset_dict = make_dataset_dict()
     dataset_dict["private"] = False
@@ -52,6 +52,32 @@ def test_dataset_create_public():
     assert not data2["private"]
     dataset.dataset_activate(dataset_id=data["id"],
                              api=get_api())
+
+
+def test_dataset_create_private():
+    """Create a private dataset"""
+    # create some metadata
+    dataset_dict = make_dataset_dict()
+    dataset_dict["private"] = True
+    # post dataset creation request
+    api = get_api()
+    data = dataset.dataset_create(dataset_dict=dataset_dict,
+                                  api=api,
+                                  create_circle=True)
+    dataset.resource_add(dataset_id=data["id"],
+                         path=data_path / "calibration_beads_47.rtdc",
+                         api=get_api(),
+                         )
+    data2 = api.get("package_show", id=data["id"])
+    assert data2["private"]
+    dataset.dataset_activate(dataset_id=data["id"],
+                             api=get_api())
+    # Try to access the private dataset with a public user
+    pubapi = CKANAPI(server=api.server,
+                     ssl_verify=True,
+                     api_key=None)
+    with pytest.raises(dcoraid.api.errors.APIAuthorizationError):
+        pubapi.get("package_show", id=data["id"])
 
 
 def test_dataset_create_fail_activate_without_resource():
