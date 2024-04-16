@@ -8,7 +8,7 @@ import requests
 
 import dclab
 from dclab.rtdc_dataset.fmt_http import HTTPBasin
-from dcoraid.api import dataset
+from dcoraid.api import dataset, errors
 
 from helper import get_api, make_dataset_dict
 
@@ -44,7 +44,7 @@ def test_access_private_data():
     res_id = data2["resources"][0]["id"]
 
     # Wait until all background jobs are successful
-    for ii in range(120):
+    for _ in range(120):
         # metadata
         res_dict = api.get("resource_show", id=res_id)
         if "dc:experiment:event count" in res_dict:
@@ -66,10 +66,9 @@ def test_access_private_data():
     avail = api.get("dcserv", id=res_id, query="valid")
     assert avail is True
 
-    # Can we get the feature list (version 1)?
-    features = api.get("dcserv", id=res_id, query="feature_list&version=1")
-    assert "deform" in features
-    assert len(features) >= 36
+    # Version 1 of the API is not supported anymore
+    with pytest.raises(errors.APIConflictError, match="not supported anymore"):
+        api.get("dcserv", id=res_id, query="feature_list&version=1")
 
     # Feature list for version 2 should be empty
     features2 = api.get("dcserv", id=res_id, query="feature_list&version=2")
@@ -100,26 +99,25 @@ def test_access_private_data():
 def test_access_public_data_features():
     api = get_api()
 
-    # deformation
-    res = api.get("dcserv",
-                  id="fb719fb2-bd9f-817a-7d70-f4002af916f0",
-                  query="feature",
-                  feature="deform")
-    deform = np.asarray(res)
-    assert np.allclose(deform[0],
-                       0.009741938672959805,
-                       atol=0,
-                       rtol=1e-10
-                       )
+    # Since the migration to version 2 of the API, the "feature" query is
+    # no longer functional.
+    with pytest.raises(errors.APIConflictError,
+                       match="Invalid query parameter"):
+        api.get("dcserv",
+                id="fb719fb2-bd9f-817a-7d70-f4002af916f0",
+                query="feature",
+                feature="deform")
 
-    # volume (ancillary feature from condensed part)
-    res2 = api.get("dcserv",
-                   id="fb719fb2-bd9f-817a-7d70-f4002af916f0",
-                   query="feature",
-                   feature="volume")
-    volume = np.asarray(res2)
-    assert np.allclose(volume[0],
-                       112.7559351790568,
-                       atol=0,
-                       rtol=1e-10
-                       )
+    with dclab.new_dataset("fb719fb2-bd9f-817a-7d70-f4002af916f0",
+                           host=api.server) as ds:
+        assert np.allclose(ds["deform"][0],
+                           0.009741938672959805,
+                           atol=0,
+                           rtol=1e-10
+                           )
+
+        assert np.allclose(ds["volume"][0],
+                           112.7559351790568,
+                           atol=0,
+                           rtol=1e-10
+                           )

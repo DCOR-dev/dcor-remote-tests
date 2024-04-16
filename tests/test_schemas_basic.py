@@ -224,7 +224,7 @@ def test_package_revise_upload_not_allowed_active_dataset():
     assert not req.ok
     assert not req.json()["success"]
     error = req.json()["error"]
-    assert "resources to non-draft datasets not allowed" in error["message"]
+    assert "Changing 'resources' not allowed for non-draft" in error["message"]
     pkg_data = api.get("package_show", id=data["id"])
     assert len(pkg_data["resources"]) == 1
 
