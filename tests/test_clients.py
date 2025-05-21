@@ -11,7 +11,7 @@ data_path = pathlib.Path(__file__).parent / "data"
 
 def test_current_client_version():
     api = get_api()
-    api.get("site_read")
+    api.get("status_show")
 
 
 @pytest.mark.parametrize("dcoraid_version", [
@@ -28,7 +28,7 @@ def test_forbidden_client_versions(dcoraid_version):
     api = get_api()
     api.headers["user-agent"] = f"DCOR-Aid/{dcoraid_version}"
     with pytest.raises(errors.APIOutdatedError, match="outdated"):
-        api.get("site_read")
+        api.get("status_show")
 
 
 @pytest.mark.parametrize("dcoraid_version", [
@@ -38,4 +38,4 @@ def test_allowed_client_versions(dcoraid_version):
     """Old clients should not work"""
     api = get_api()
     api.headers["user-agent"] = f"DCOR-Aid/{dcoraid_version}"
-    api.get("site_read")
+    api.get("status_show")

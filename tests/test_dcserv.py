@@ -30,6 +30,7 @@ def test_access_private_data():
     dataset_dict["private"] = True
     # post dataset creation request
     api = get_api()
+
     data = dataset.dataset_create(dataset_dict=dataset_dict,
                                   api=api,
                                   create_circle=True)
@@ -60,7 +61,7 @@ def test_access_private_data():
                     break
         time.sleep(.5)
     else:
-        assert False, "Metadata not computed in background job!"
+        assert False, f"Metadata for {res_id} not computed in background job!"
 
     # Can we access the resource?
     avail = api.get("dcserv", id=res_id, query="valid")
