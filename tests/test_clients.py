@@ -32,7 +32,7 @@ def test_forbidden_client_versions(dcoraid_version):
 
 
 @pytest.mark.parametrize("dcoraid_version", [
-    "0.15.5",
+    "0.16.11",
     ])
 def test_allowed_client_versions(dcoraid_version):
     """Old clients should not work"""
