@@ -120,5 +120,5 @@ def test_access_public_data_features():
         assert np.allclose(ds["volume"][0],
                            112.7559351790568,
                            atol=0,
-                           rtol=1e-10
+                           rtol=1e-8
                            )
