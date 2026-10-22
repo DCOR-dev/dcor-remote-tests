@@ -23,7 +23,7 @@ def test_access_public_data():
     assert res is True
 
 
-def test_access_private_data():
+def test_access_private_data(monkeypatch):
     """Upload a private dataset and try to access it"""
     # create some metadata
     dataset_dict = make_dataset_dict()
@@ -92,7 +92,10 @@ def test_access_private_data():
                            0.011666297,
                            atol=0, rtol=1e-5)
 
-    # Try to access the private dataset as a public user
+    # Try to access the private dataset as a public user. dclab remembers
+    # all API keys used in this process, so we have to forget them first.
+    monkeypatch.setattr(dclab.rtdc_dataset.fmt_dcor.api.APIHandler,
+                        "api_keys", [])
     with pytest.raises(dclab.rtdc_dataset.fmt_dcor.api.DCORAccessError):
         dclab.new_dataset(res_id, host=api.server, dcserv_api_version=2)
 
