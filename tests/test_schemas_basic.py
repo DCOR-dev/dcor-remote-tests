@@ -7,7 +7,9 @@ import requests
 import dcoraid
 from dcoraid.api import dataset
 
-from helper import CKANAPI, get_api, make_dataset_dict
+from helper import (
+    CKANAPI, get_api, make_dataset_dict, upload_resource_to_s3
+)
 
 data_path = pathlib.Path(__file__).parent / "data"
 
@@ -211,16 +213,18 @@ def test_package_revise_upload_not_allowed_active_dataset():
                          )
     dataset.dataset_activate(dataset_id=data["id"],
                              api=get_api())
-    # now try to add a resource with package_revise
-    path = data_path / "calibration_beads_47.rtdc"
-    with path.open("rb") as fd:
-        req = requests.post(
-            api.api_url + "package_revise",
-            data={"match__id": data["id"],
-                  "update__resources__extend": '[{"name":"peter.rtdc"}]',
-                  },
-            files=[("update__resources__-1__upload", ("peter.rtdc", fd))],
-            headers=api.headers)
+    # now try to add a resource (uploaded to S3) with package_revise
+    rid = upload_resource_to_s3(api=api,
+                                dataset_id=data["id"],
+                                path=data_path / "calibration_beads_47.rtdc")
+    req = requests.post(
+        api.api_url + "package_revise",
+        json={"match": {"id": data["id"]},
+              "update__resources__extend": [{"id": rid,
+                                             "name": "peter.rtdc",
+                                             "s3_available": True}],
+              },
+        headers=api.headers)
     assert not req.ok
     assert not req.json()["success"]
     error = req.json()["error"]
@@ -275,18 +279,19 @@ def test_package_revise_upload_not_allowed_same_resource_name():
                          api=api,
                          )
 
-    # now try to add a resource with package_revise
-    path = data_path / "calibration_beads_47.rtdc"
-    with path.open("rb") as fd:
-        req = requests.post(
-            api.api_url + "package_revise",
-            data={"match__id": data["id"],
-                  "update__resources__extend":
-                      '[{"name":"calibration_beads_47.rtdc"}]',
-                  },
-            files=[("update__resources__-1__upload",
-                    ("calibration_beads_47.rtdc", fd))],
-            headers=api.headers)
+    # now try to add a resource (uploaded to S3) with the same name
+    rid = upload_resource_to_s3(api=api,
+                                dataset_id=data["id"],
+                                path=data_path / "calibration_beads_47.rtdc")
+    req = requests.post(
+        api.api_url + "package_revise",
+        json={"match": {"id": data["id"]},
+              "update__resources__extend": [
+                  {"id": rid,
+                   "name": "calibration_beads_47.rtdc",
+                   "s3_available": True}],
+              },
+        headers=api.headers)
     assert not req.ok
     assert not req.json()["success"]
     assert req.reason == "CONFLICT"

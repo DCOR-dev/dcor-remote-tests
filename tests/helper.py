@@ -5,6 +5,7 @@ import pathlib
 import time
 
 from dcoraid.api import CKANAPI, create_dcor_dev_user, is_valid_api_key
+from dcoraid.api import dataset, s3_api
 
 
 SERVER = "dcor-dev.mpl.mpg.de"
@@ -71,3 +72,21 @@ def make_dataset_dict(circle=None, hint=None):
         "authors": "Guybrush Ulysses Threepwood",
     }
     return dataset_dict
+
+
+def upload_resource_to_s3(api, dataset_id, path):
+    """Upload a file to S3 without adding it to the dataset
+
+    Returns the resource ID, which can then be used to add the
+    resource to the dataset with `package_revise`.
+    """
+    path = pathlib.Path(path)
+    org_id = dataset.get_organization_id_for_dataset(api=api,
+                                                     dataset_id=dataset_id)
+    upload_info = api.get("resource_upload_s3_urls",
+                          organization_id=org_id,
+                          file_size=path.stat().st_size)
+    s3_api.upload_s3_presigned(path=path,
+                               upload_urls=upload_info["upload_urls"],
+                               complete_url=upload_info["complete_url"])
+    return upload_info["resource_id"]
